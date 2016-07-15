@@ -86,6 +86,7 @@ download_renewal_plugins() { # XML
  -e '/<mod /,/<\/mod>/!d;' \
  -e '/<\/\?\(mod\|dl....'"$VAR"'\)/!d;' \
  -e 's,^[ \t]*,,;' \
+ -e 's,\r$,,;' \
 )"
 	GUIDS="$(echo "$PLUGINS_INFO" \
  | sed '/^[ \t]*<mod guid="/!d;s,,,;s,".*,,' \
