@@ -44,7 +44,7 @@ exists_or_download() {
 		log "File '$1' already exists."
 	else
 		log "Downloading '$1' from '$2'..."
-		wget -U "$USER_AGENT" -O "$1" "$2"
+		curl -RLA "$USER_AGENT" -o "$1" "$2"
 	fi
 }
 
@@ -63,7 +63,7 @@ extract() { # ARCHIVE [FILE]...
 }
 
 download_plugring() { # PID [PATTERN]
-	PLUGIN_INFO="$(wget -U "$USER_AGENT" -O- "$PRING_HOST$PRING_INFO$1" | sed \
+	PLUGIN_INFO="$(curl -RLA "$USER_AGENT" "$PRING_HOST$PRING_INFO$1" | sed \
  -e '/.*\(Version\|Far version\|Filename\|<a href="download.php?\)/!d;s,,\1,;'  \
  -e 's,</td></tr>,,;' \
  -e '/^<a /{s,<[^"]*",Url=,;s,">.*,,};' \
@@ -95,7 +95,7 @@ download_renewal_plugins() { # XML
 		PLUGIN_INFO="$(echo "$PLUGINS_INFO" | sed '/<mod guid="'$GUID'">/,/<\/mod>/!d')"
 		PLUGIN_FLST="$(echo "$PLUGIN_INFO" | sed '/dlpage/!d;s,<[^>]*>,,g')"
 		PLUGIN_PATT="$(echo "$PLUGIN_INFO" | sed '/dlrgex/!d;s,<[^>]*>,,g;s,\\d,[0-9],g;s,^,[a-z]+:,')"
-		PLUGIN_URL="$(wget -U "$USER_AGENT" -O- "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
+		PLUGIN_URL="$(curl -RLA "$USER_AGENT" "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
 		PLUGIN_FILE="${PLUGIN_URL##*/}"
 		exists_or_download "$PLUGIN_FILE" "$PLUGIN_URL" && \
 		RENEWAL_PLUGINS="$RENEWAL_PLUGINS $PLUGIN_FILE"
@@ -112,10 +112,11 @@ CURL_PAGE_PATH="$(wget -U "$USER_AGENT" -O- "$CURL_PARENT_PAGE" | egrep -o "$CUR
 CURL_QUERY="$(wget -U "$USER_AGENT" -O- "$CURL_HOST$CURL_PAGE_PATH" | egrep -o "$CURL_QUERY_PATT")"
 CURL_FILE="${CURL_QUERY##*=}"
 
-exists_or_download "$CURL_FILE" "$CURL_PARENT_PAGE$CURL_QUERY"
+log "Downloading '$CURL_FILE' from '$CURL_PARENT_PAGE$CURL_QUERY'..."
+wget -U "$USER_AGENT" -O "$CURL_FILE" "$CURL_PARENT_PAGE$CURL_QUERY"
 extract "$CURL_FILE" curl.exe
 
-FAR_FILES="$(wget -U "$USER_AGENT" -O- "$FAR_DLPAGE" | sed \
+FAR_FILES="$(curl -RLA "$USER_AGENT" "$FAR_DLPAGE" | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
  -e '/^[ \t]*<\(b>\|a \)/!d;' \
  -e '/^[ \t]*<b>/{s,,,;s,</b>,,}' \
