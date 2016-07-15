@@ -104,7 +104,7 @@ download_renewal_plugins() { # XML
 	for GUID in $GUIDS; do
 		PLUGIN_INFO="$(echo "$PLUGINS_INFO" | sed '/<mod guid="'$GUID'">/,/<\/mod>/!d')"
 		PLUGIN_FLST="$(echo "$PLUGIN_INFO" | sed '/dlpage/!d;s,<[^>]*>,,g')"
-		PLUGIN_PATT="$(echo "$PLUGIN_INFO" | sed '/dlrgex/!d;s,<[^>]*>,,g;s,\\d,[0-9],g;s,^,[a-z]+:,')"
+		PLUGIN_PATT="$(echo "$PLUGIN_INFO" | sed '/dlrgex/!d;s,<[^>]*>,,g;s,\\d,[0-9],g;s,^,[a-z]+:,;s,zip$,[0-9a-z]+,')"
 		PLUGIN_URL="$(curl -kRLA "$USER_AGENT" "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
 		PLUGIN_FILE="${PLUGIN_URL##*/}"
 		exists_or_download_insecure "$PLUGIN_FILE" "$PLUGIN_URL" && \
