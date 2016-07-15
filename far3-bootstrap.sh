@@ -15,6 +15,12 @@
 
 USER_AGENT=far3-bootstrap/0.2
 
+# curl
+CURL_HOST='http://www.paehl.com/'
+CURL_PARENT_PAGE="$CURL_HOST"'/open_source/'
+CURL_PAGE_PATH_PATT='/open_source/\?CURL_[0-9.]+'
+CURL_QUERY_PATT='\?download=curl_[0-9_]+_ssl.zip'
+
 FAR_VARIANT=${1:-x86}
 FAR_DIR="Far.$FAR_VARIANT"
 
@@ -101,6 +107,13 @@ download_renewal_plugins() { # XML
 # Start
 
 export PATH="$PWD;$PATH"
+
+CURL_PAGE_PATH="$(wget -U "$USER_AGENT" -O- "$CURL_PARENT_PAGE" | egrep -o "$CURL_PAGE_PATH_PATT")"
+CURL_QUERY="$(wget -U "$USER_AGENT" -O- "$CURL_HOST$CURL_PAGE_PATH" | egrep -o "$CURL_QUERY_PATT")"
+CURL_FILE="${CURL_QUERY##*=}"
+
+exists_or_download "$CURL_FILE" "$CURL_PARENT_PAGE$CURL_QUERY"
+extract "$CURL_FILE" curl.exe
 
 FAR_FILES="$(wget -U "$USER_AGENT" -O- "$FAR_DLPAGE" | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
