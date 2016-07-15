@@ -13,6 +13,8 @@
 #  busybox sh far-bootstrap.sh
 # Run Far from Far.x?? directory and further update plugins using Renewal (via F11).
 
+USER_AGENT=far3-bootstrap/0.2
+
 FAR_VARIANT=${1:-x86}
 FAR_DIR="Far.$FAR_VARIANT"
 
@@ -36,7 +38,7 @@ exists_or_download() {
 		log "File '$1' already exists."
 	else
 		log "Downloading '$1' from '$2'..."
-		wget -O "$1" "$2"
+		wget -U "$USER_AGENT" -O "$1" "$2"
 	fi
 }
 
@@ -55,7 +57,7 @@ extract() { # ARCHIVE [FILE]...
 }
 
 download_plugring() { # PID [PATTERN]
-	PLUGIN_INFO="$(wget -O- "$PRING_HOST$PRING_INFO$1" | sed \
+	PLUGIN_INFO="$(wget -U "$USER_AGENT" -O- "$PRING_HOST$PRING_INFO$1" | sed \
  -e '/.*\(Version\|Far version\|Filename\|<a href="download.php?\)/!d;s,,\1,;'  \
  -e 's,</td></tr>,,;' \
  -e '/^<a /{s,<[^"]*",Url=,;s,">.*,,};' \
@@ -87,7 +89,7 @@ download_renewal_plugins() { # XML
 		PLUGIN_INFO="$(echo "$PLUGINS_INFO" | sed '/<mod guid="'$GUID'">/,/<\/mod>/!d')"
 		PLUGIN_FLST="$(echo "$PLUGIN_INFO" | sed '/dlpage/!d;s,<[^>]*>,,g')"
 		PLUGIN_PATT="$(echo "$PLUGIN_INFO" | sed '/dlrgex/!d;s,<[^>]*>,,g;s,\\d,[0-9],g;s,^,[a-z]+:,')"
-		PLUGIN_URL="$(wget -O- "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
+		PLUGIN_URL="$(wget -U "$USER_AGENT" -O- "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
 		PLUGIN_FILE="${PLUGIN_URL##*/}"
 		exists_or_download "$PLUGIN_FILE" "$PLUGIN_URL" && \
 		RENEWAL_PLUGINS="$RENEWAL_PLUGINS $PLUGIN_FILE"
@@ -100,7 +102,7 @@ download_renewal_plugins() { # XML
 
 export PATH="$PWD;$PATH"
 
-FAR_FILES="$(wget -O- "$FAR_DLPAGE" | sed \
+FAR_FILES="$(wget -U "$USER_AGENT" -O- "$FAR_DLPAGE" | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
  -e '/^[ \t]*<\(b>\|a \)/!d;' \
  -e '/^[ \t]*<b>/{s,,,;s,</b>,,}' \
