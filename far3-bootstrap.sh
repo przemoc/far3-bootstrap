@@ -146,6 +146,7 @@ extract "$SZIP_FILE" 7za.exe
 "$UNRAR_FILE" -s2
 
 RENEWAL=$(download_plugring 925 $FAR_VARIANT)
+PORTADEV=$(download_plugring 933 $FAR_VARIANT)
 INTCHECKER=$(download_plugring 893 $FAR_VARIANT)
 RESEARCH="$(exists_or_download "RESearch.rar" \
  "http://www.kostrom.spb.ru/FILES/RESearch.rar" && echo RESearch.rar)"
@@ -154,6 +155,7 @@ RESEARCH="$(exists_or_download "RESearch.rar" \
   && extract ../"$FAR_FILE" \
   && cd Plugins \
   && extract ../../"$INTCHECKER" \
+  && extract ../../"$PORTADEV" \
   && extract ../../"$RENEWAL" \
   && ( mkdir -p RESearch && cd RESearch \
        && extract ../../../"$RESEARCH" \
