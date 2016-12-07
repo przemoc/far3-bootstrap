@@ -65,7 +65,7 @@ extract() { # ARCHIVE [FILE]...
 	if [ "$EXT" = "zip" ]; then
 		unzip -o "$ARC" "$@"
 	elif [ "$EXT" = "7z" ]; then
-		7za x "$ARC" -ry "$@"
+		7za x -r -y "$ARC" "$@"
 	elif [ "$EXT" = "rar" ]; then
 		unrar x -o+ "$ARC" "$@"
 	fi
