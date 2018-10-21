@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: MIT
 
 ## Far Manager v3 + some plugins bootstrap script
 ## Copyright (C) 2015-2018 Przemyslaw Pawelczyk <przemoc@gmail.com>
