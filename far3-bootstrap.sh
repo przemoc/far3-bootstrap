@@ -43,7 +43,7 @@ exists_or_download() {
 		log "File '$1' already exists."
 	else
 		log "Downloading '$1' from '$2'..."
-		curl -RLA "$USER_AGENT" -o "$1" "$2"
+		curl -gRLA "$USER_AGENT" -o "$1" "$2"
 	fi
 }
 
@@ -52,7 +52,7 @@ exists_or_download_insecure() {
 		log "File '$1' already exists."
 	else
 		log "Downloading '$1' from '$2'..."
-		curl -kRLA "$USER_AGENT" -o "$1" "$2"
+		curl -gkRLA "$USER_AGENT" -o "$1" "$2"
 	fi
 }
 
@@ -94,7 +94,7 @@ download_and_extract_curl() {
 }
 
 download_plugring() { # PID [PATTERN]
-	PLUGIN_INFO="$(curl -RLA "$USER_AGENT" "$PRING_HOST$PRING_INFO$1" | sed \
+	PLUGIN_INFO="$(curl -gRLA "$USER_AGENT" "$PRING_HOST$PRING_INFO$1" | sed \
  -e '/.*\(Version\|Far version\|Filename\|<a href="download.php?\)/!d;s,,\1,;'  \
  -e 's,</td></tr>,,;' \
  -e '/^<a /{s,<[^"]*",Url=,;s,">.*,,};' \
@@ -127,7 +127,7 @@ download_renewal_plugins() { # XML
 		PLUGIN_INFO="$(echo "$PLUGINS_INFO" | sed '/<mod guid="'$GUID'">/,/<\/mod>/!d')"
 		PLUGIN_FLST="$(echo "$PLUGIN_INFO" | sed '/dlpage/!d;s,<[^>]*>,,g')"
 		PLUGIN_PATT="$(echo "$PLUGIN_INFO" | sed '/dlrgex/!d;s,<[^>]*>,,g;s,\\d,[0-9],g;s,^,[a-z]+:,;s,zip$,[0-9a-z]+,')"
-		PLUGIN_URL="$(curl -kRLA "$USER_AGENT" "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
+		PLUGIN_URL="$(curl -gkRLA "$USER_AGENT" "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
 		PLUGIN_FILE="${PLUGIN_URL##*/}"
 		exists_or_download_insecure "$PLUGIN_FILE" "$PLUGIN_URL" && \
 		RENEWAL_PLUGINS="$RENEWAL_PLUGINS $PLUGIN_FILE"
@@ -142,7 +142,7 @@ export PATH="$PWD;$PATH"
 
 download_and_extract_curl
 
-FAR_FILES="$(curl -RLA "$USER_AGENT" "$FAR_DLPAGE" | sed \
+FAR_FILES="$(curl -gRLA "$USER_AGENT" "$FAR_DLPAGE" | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
  -e '/^[ \t]*<\(b>\|a \)/!d;' \
  -e '/^[ \t]*<b>/{s,,,;s,</b>,,}' \
