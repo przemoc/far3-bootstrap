@@ -15,14 +15,11 @@
 
 USER_AGENT=far3-bootstrap/0.2
 
-# curl
-CURL_HOST='http://www.paehl.com/'
-CURL_PARENT_PAGE="$CURL_HOST"'/open_source/'
-CURL_PAGE_PATH_PATT='/open_source/\?CURL_[0-9.]+'
-CURL_QUERY_PATT='\?download=curl_[0-9_]+_ssl.zip'
 
 FAR_VARIANT=${1:-x86}
 FAR_DIR="Far.$FAR_VARIANT"
+
+[ "$FAR_VARIANT" = "x86" ] && BITS=32 || BITS=64
 
 # Far
 FAR_HOST='http://farmanager.com/'
@@ -31,6 +28,8 @@ PRING_HOST='http://plugring.farmanager.com/'
 PRING_INFO='plugin.php?pid='
 
 # Tools
+CURL_BASE='https://curl.haxx.se/windows/'
+CURL_PATT="curl for $BITS bit"
 SZIP_BASE='http://downloads.sourceforge.net/sevenzip/'
 SZIP_FILE='7za920.zip'
 UNRAR_BASE='http://www.rarlab.com/rar/'
@@ -69,6 +68,29 @@ extract() { # ARCHIVE [FILE]...
 	elif [ "$EXT" = "rar" ]; then
 		unrar x -o+ "$ARC" "$@"
 	fi
+}
+
+extract_no_path() { # ARCHIVE [FILE]
+	ARC=$1
+	shift
+	log "Extracting $@ from '$ARC'"
+	EXT=$(echo ${ARC##*.} | tr A-Z a-z)
+	if [ "$EXT" = "zip" ]; then
+		unzip -jo "$ARC" "$@"
+	elif [ "$EXT" = "7z" ]; then
+		7za e -r -y "$ARC" "$@"
+	elif [ "$EXT" = "rar" ]; then
+		unrar e -o+ "$ARC" "$@"
+	fi
+}
+
+download_and_extract_curl() {
+	CURL_PATH=$(wget -U "$USER_AGENT" -O- "$CURL_BASE" | sed "/$CURL_PATT/!d;s,.*href=\",,;s,\".*,,")
+	CURL_FILE=${CURL_PATH##*/}
+	CURL_DIR=$(echo "${CURL_FILE%.zip}" | sed 's,_[0-9]*,,')
+	log "Downloading '$CURL_FILE' from '$CURL_BASE$CURL_PATH'..."
+	wget -U "$USER_AGENT" -O "$CURL_FILE" "$CURL_BASE$CURL_PATH"
+	extract_no_path "$CURL_FILE" "${CURL_DIR}/bin/curl.exe" "${CURL_DIR}/bin/curl-ca-bundle.crt"
 }
 
 download_plugring() { # PID [PATTERN]
@@ -118,13 +140,7 @@ download_renewal_plugins() { # XML
 
 export PATH="$PWD;$PATH"
 
-CURL_PAGE_PATH="$(wget -U "$USER_AGENT" -O- "$CURL_PARENT_PAGE" | egrep -o "$CURL_PAGE_PATH_PATT")"
-CURL_QUERY="$(wget -U "$USER_AGENT" -O- "$CURL_HOST$CURL_PAGE_PATH" | egrep -o "$CURL_QUERY_PATT")"
-CURL_FILE="${CURL_QUERY##*=}"
-
-log "Downloading '$CURL_FILE' from '$CURL_PARENT_PAGE$CURL_QUERY'..."
-wget -U "$USER_AGENT" -O "$CURL_FILE" "$CURL_PARENT_PAGE$CURL_QUERY"
-extract "$CURL_FILE" curl.exe
+download_and_extract_curl
 
 FAR_FILES="$(curl -RLA "$USER_AGENT" "$FAR_DLPAGE" | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
