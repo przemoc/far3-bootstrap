@@ -37,6 +37,9 @@ SZIP_PATT='7z[0-9]*\.exe'
 UNRAR_BASE='http://www.rarlab.com/rar/'
 UNRAR_FILE='unrarw32.exe'
 
+# Sites
+FARPLUGS_BASE='https://sourceforge.net/projects/farplugs/'
+
 # Functions
 log() { echo "* $@" >&2; }
 
@@ -124,29 +127,14 @@ download_plugring() { # PID [PATTERN]
 	echo "$PLUGIN_FILE"
 }
 
-download_renewal_plugins() { # XML
-	VAR=$(echo $FAR_VARIANT | sed 's,x,,')
-	PLUGINS_INFO="$(cat "$1" | sed \
- -e '/<mod /,/<\/mod>/!d;' \
- -e '/<\/\?\(mod\|dl....'"$VAR"'\)/!d;' \
- -e 's,^[ \t]*,,;' \
- -e 's,\r$,,;' \
-)"
-	GUIDS="$(echo "$PLUGINS_INFO" \
- | sed '/^[ \t]*<mod guid="/!d;s,,,;s,".*,,' \
- | grep -v '{E3299E7A-1A22-47DD-B270-663BD2B74BCD}' \
-)"
-	for GUID in $GUIDS; do
-		PLUGIN_INFO="$(echo "$PLUGINS_INFO" | sed '/<mod guid="'$GUID'">/,/<\/mod>/!d')"
-		PLUGIN_FLST="$(echo "$PLUGIN_INFO" | sed '/dlpage/!d;s,<[^>]*>,,g')"
-		PLUGIN_PATT="$(echo "$PLUGIN_INFO" | sed '/dlrgex/!d;s,<[^>]*>,,g;s,\\d,[0-9],g;s,^,[a-z]+:,;s,zip$,[0-9a-z]+,')"
-		PLUGIN_URL="$(curl -gkRLA "$USER_AGENT" "$PLUGIN_FLST" | egrep -o "$PLUGIN_PATT" | sort -rnt. | sed 1q)"
-		PLUGIN_FILE="${PLUGIN_URL##*/}"
-		exists_or_download_insecure "$PLUGIN_FILE" "$PLUGIN_URL" && \
-		RENEWAL_PLUGINS="$RENEWAL_PLUGINS $PLUGIN_FILE"
+download_farplugs_plugins() {
+	URLS=$(curl -gRLA "$USER_AGENT" "${FARPLUGS_BASE}rss" | sed "/ *<link>/!d;s,,,;s,</link>.*,,;/_$FAR_VARIANT/!d")
+	for PLUGIN_URL in $URLS; do
+		PLUGIN_FILE=${PLUGIN_URL%/download}
+		PLUGIN_FILE=${PLUGIN_FILE##*/}
+		exists_or_download "$PLUGIN_FILE" "$PLUGIN_URL"
+		echo "$PLUGIN_FILE"
 	done
-
-	echo "$RENEWAL_PLUGINS"
 }
 
 # Start
@@ -175,28 +163,22 @@ extract "$SZIPA_FILE" 7za.exe
 download_and_extract_7zip
 extract "$UNRAR_FILE" unrar.exe
 
-RENEWAL=$(download_plugring 925 $FAR_VARIANT)
-PORTADEV=$(download_plugring 933 $FAR_VARIANT)
+FARPLUGS=$(download_farplugs_plugins)
 INTCHECKER=$(download_plugring 893 $FAR_VARIANT)
 RESEARCH="$(exists_or_download "RESearch.rar" \
  "http://www.kostrom.spb.ru/FILES/RESearch.rar" && echo RESearch.rar)"
 
 ( mkdir -p "$FAR_DIR" && cd "$FAR_DIR" \
   && extract ../"$FAR_FILE" \
-  && cd Plugins \
+)
+
+( cd "$FAR_DIR/Plugins" \
+  && for PLUGIN in $FARPLUGS; do extract ../../$PLUGIN; done \
   && extract ../../"$INTCHECKER" \
-  && extract ../../"$PORTADEV" \
-  && extract ../../"$RENEWAL" \
   && ( mkdir -p RESearch && cd RESearch \
        && extract ../../../"$RESEARCH" \
        && rm "RESearch.dll"  "RESearch x64.dll" \
              "RESearchU.dll" "RESearchU x64.dll" \
        && ( [ "$FAR_VARIANT" = "x86" ] && rm "RESearchU3 x64.dll" || rm "RESearchU3.dll" ) \
      ) \
-)
-
-RPLUGINS="$(download_renewal_plugins "$FAR_DIR/Plugins/Renewal/Renewal.xml")"
-
-( cd "$FAR_DIR/Plugins" \
-  && for PLUGIN in $RPLUGINS; do extract ../../$PLUGIN; done \
 )
