@@ -30,8 +30,10 @@ PRING_INFO='plugin.php?pid='
 # Tools
 CURL_BASE='https://curl.haxx.se/windows/'
 CURL_PATT="curl for $BITS bit"
-SZIP_BASE='http://downloads.sourceforge.net/sevenzip/'
-SZIP_FILE='7za920.zip'
+SZIPA_BASE='http://downloads.sourceforge.net/sevenzip/'
+SZIPA_FILE='7za920.zip'
+SZIP_BASE='https://www.7-zip.org/'
+SZIP_PATT='7z[0-9]*\.exe'
 UNRAR_BASE='http://www.rarlab.com/rar/'
 UNRAR_FILE='unrarw32.exe'
 
@@ -64,7 +66,9 @@ extract() { # ARCHIVE [FILE]...
 	if [ "$EXT" = "zip" ]; then
 		unzip -o "$ARC" "$@"
 	elif [ "$EXT" = "7z" ]; then
-		7za x -r -y "$ARC" "$@"
+		7z x -r -y "$ARC" "$@"
+	elif [ "$EXT" = "exe" ]; then
+		7z x -r -y "$ARC" "$@"
 	elif [ "$EXT" = "rar" ]; then
 		unrar x -o+ "$ARC" "$@"
 	fi
@@ -78,7 +82,9 @@ extract_no_path() { # ARCHIVE [FILE]
 	if [ "$EXT" = "zip" ]; then
 		unzip -jo "$ARC" "$@"
 	elif [ "$EXT" = "7z" ]; then
-		7za e -r -y "$ARC" "$@"
+		7z e -r -y "$ARC" "$@"
+	elif [ "$EXT" = "exe" ]; then
+		7z e -r -y "$ARC" "$@"
 	elif [ "$EXT" = "rar" ]; then
 		unrar e -o+ "$ARC" "$@"
 	fi
@@ -91,6 +97,13 @@ download_and_extract_curl() {
 	log "Downloading '$CURL_FILE' from '$CURL_BASE$CURL_PATH'..."
 	wget -U "$USER_AGENT" -O "$CURL_FILE" "$CURL_BASE$CURL_PATH"
 	extract_no_path "$CURL_FILE" "${CURL_DIR}/bin/curl.exe" "${CURL_DIR}/bin/curl-ca-bundle.crt"
+}
+
+download_and_extract_7zip() {
+	SZIP_PATH=$(curl -gRLA "$USER_AGENT" "$SZIP_BASE" | sed "/$SZIP_PATT/!d;s,.*href=\",,;s,\".*,,")
+	SZIP_FILE=${SZIP_PATH##*/}
+	exists_or_download "$SZIP_FILE" "$SZIP_BASE$SZIP_PATH"
+	7za x -y "$SZIP_FILE" 7z.exe 7z.dll
 }
 
 download_plugring() { # PID [PATTERN]
@@ -156,10 +169,11 @@ log "Far Manager stable builds files"
 echo "$FAR_FILES"
 
 exists_or_download "$FAR_FILE" "$FAR_HOST$FAR_DLFILE"
-exists_or_download "$SZIP_FILE" "$SZIP_BASE$SZIP_FILE"
+exists_or_download "$SZIPA_FILE" "$SZIPA_BASE$SZIPA_FILE"
 exists_or_download "$UNRAR_FILE" "$UNRAR_BASE$UNRAR_FILE"
-extract "$SZIP_FILE" 7za.exe
-"$UNRAR_FILE" -s2
+extract "$SZIPA_FILE" 7za.exe
+download_and_extract_7zip
+extract "$UNRAR_FILE" unrar.exe
 
 RENEWAL=$(download_plugring 925 $FAR_VARIANT)
 PORTADEV=$(download_plugring 933 $FAR_VARIANT)
