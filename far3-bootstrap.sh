@@ -1,8 +1,10 @@
 #!/bin/sh
 
 ## Far Manager v3 + some plugins bootstrap script
-## Copyright (C) 2015 Przemyslaw Pawelczyk <przemoc@gmail.com>
-## The script is licensed under the traditional MIT license.
+## Copyright (C) 2015-2018 Przemyslaw Pawelczyk <przemoc@gmail.com>
+##
+## This script is licensed under the terms of the MIT license.
+## https://opensource.org/licenses/MIT
 
 # Create directory dedicated for Far bootstrapping and go into it.
 # Download here busybox-w32:
