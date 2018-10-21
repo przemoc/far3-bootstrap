@@ -10,7 +10,7 @@
 # Download here this script:
 #  https://raw.githubusercontent.com/przemoc/far3-bootstrap/master/far3-bootstrap.sh
 # Run following command:
-#  busybox sh far-bootstrap.sh
+#  busybox sh far3-bootstrap.sh
 # Run Far from Far.x?? directory and further update plugins using Renewal (via F11).
 
 USER_AGENT=far3-bootstrap/0.2
