@@ -13,8 +13,7 @@
 #  busybox sh far3-bootstrap.sh
 # Run Far from Far.x?? directory and further update plugins using Renewal (via F11).
 
-USER_AGENT=far3-bootstrap/0.2
-
+USER_AGENT=far3-bootstrap/0.3
 
 FAR_VARIANT=${1:-x86}
 FAR_DIR="Far.$FAR_VARIANT"
