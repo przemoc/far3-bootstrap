@@ -18,7 +18,7 @@
 
 set -e
 
-USER_AGENT=far3-bootstrap/0.3
+USER_AGENT=far3-bootstrap/0.4
 
 FAR_VARIANT=${1:-x86}
 FAR_DIR="Far.$FAR_VARIANT"
