@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 ## Far Manager v3 + some plugins bootstrap script
-## Copyright (C) 2015-2018 Przemyslaw Pawelczyk <przemoc@gmail.com>
+## Copyright (C) 2015-2021 Przemyslaw Pawelczyk <przemoc@gmail.com>
 ##
 ## This script is licensed under the terms of the MIT license.
 ## https://opensource.org/licenses/MIT
