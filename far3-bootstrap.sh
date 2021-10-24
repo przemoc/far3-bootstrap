@@ -105,7 +105,7 @@ download_and_extract_curl() {
 }
 
 download_and_extract_7zip() {
-	SZIP_PATH=$(curl -gRLA "$USER_AGENT" "$SZIP_BASE" | sed "/$SZIP_PATT/!d;s,.*href=\",,;s,\".*,,")
+	SZIP_PATH=$(curl -gRLA "$USER_AGENT" "$SZIP_BASE" | sed "/$SZIP_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
 	SZIP_FILE=${SZIP_PATH##*/}
 	exists_or_download "$SZIP_FILE" "$SZIP_BASE$SZIP_PATH"
 	7za x -y "$SZIP_FILE" 7z.exe 7z.dll
@@ -145,13 +145,14 @@ export PATH="$PWD;$PATH"
 
 download_and_extract_curl
 
-FAR_FILES="$(curl -gRLA "$USER_AGENT" "$FAR_DLPAGE" | sed \
+FAR_FILES="$(curl -gRLA "$USER_AGENT" "$FAR_DLPAGE" \
+ | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
- -e '/^[ \t]*<\(b>\|a \)/!d;' \
- -e '/^[ \t]*<b>/{s,,,;s,</b>,,}' \
- -e '/^[ \t]*<a .*href="/{s,,,;s,".*,,}' \
- -e '/^files\/$/d'
-)"
+ -e '/^[ \t]*<li>/!d;' \
+ -e 's,<a ,\n,g;' \
+ | sed \
+ -e '/^class="body_link" href="/!d;s,,,;s,".*,,;' \
+)"/
 FAR_DLFILE="$(echo "$FAR_FILES" | grep "\.$FAR_VARIANT\.[^.]*\.7z$")"
 FAR_FILE="${FAR_DLFILE##*/}"
 
