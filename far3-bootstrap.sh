@@ -7,13 +7,12 @@
 ## This script is licensed under the terms of the MIT license.
 ## https://opensource.org/licenses/MIT
 
-# Create directory dedicated for Far bootstrapping and go into it.
-# Download here busybox-w32:
-#  http://frippery.org/files/busybox/busybox.exe
-# Download here this script:
-#  https://raw.githubusercontent.com/przemoc/far3-bootstrap/master/far3-bootstrap.sh
-# Run following command:
-#  busybox sh far3-bootstrap.sh
+# Download zip, extract its content and go into newly created directory:
+#  https://github.com/przemoc/far3-bootstrap/zipball/master
+# On Windows run:
+#  far3-bootstrap.cmd
+# On Linux run:
+#  far3-bootstrap.sh
 # Run Far from Far.x?? directory and further update plugins using Renewal (via F11).
 
 set -e
