@@ -168,8 +168,7 @@ extract "$UNRAR_FILE" unrar.exe
 
 FARPLUGS=$(download_farplugs_plugins)
 INTCHECKER=$(download_plugring 893 $FAR_VARIANT)
-RESEARCH="$(exists_or_download "RESearch.rar" \
- "http://www.kostrom.spb.ru/FILES/RESearch.rar" && echo RESearch.rar)"
+RESEARCH=$(download_plugring 246)
 
 ( mkdir -p "$FAR_DIR" && cd "$FAR_DIR" \
   && extract ../"$FAR_FILE" \
@@ -180,8 +179,6 @@ RESEARCH="$(exists_or_download "RESearch.rar" \
   && extract ../../"$INTCHECKER" \
   && ( mkdir -p RESearch && cd RESearch \
        && extract ../../../"$RESEARCH" \
-       && rm "RESearch.dll"  "RESearch x64.dll" \
-             "RESearchU.dll" "RESearchU x64.dll" \
        && ( [ "$FAR_VARIANT" = "x86" ] && rm "RESearchU3 x64.dll" || rm "RESearchU3.dll" ) \
      ) \
 )
