@@ -31,8 +31,8 @@ PRING_HOST='http://plugring.farmanager.com/'
 PRING_INFO='plugin.php?pid='
 
 # Tools
-CURL_BASE='https://curl.haxx.se/windows/'
-CURL_PATT="curl for $BITS bit"
+CURL_BASE='https://curl.se/windows/'
+CURL_PATT="curl for $BITS-bit"
 SZIPA_BASE='http://downloads.sourceforge.net/sevenzip/'
 SZIPA_FILE='7za920.zip'
 SZIP_BASE='https://www.7-zip.org/'
