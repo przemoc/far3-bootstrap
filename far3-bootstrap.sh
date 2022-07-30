@@ -99,7 +99,7 @@ extract_no_path() { # ARCHIVE [FILE]
 download_and_extract_curl() {
 	CURL_PATH=$(wget -U "$USER_AGENT" -O- "$CURL_BASE" | sed "/$CURL_PATT/!d;s,.*href=\",,;s,\".*,,")
 	CURL_FILE=${CURL_PATH##*/}
-	CURL_DIR=$(echo "${CURL_FILE%.zip}" | sed 's,_[0-9]*,,')
+	CURL_DIR=${CURL_FILE%.zip}
 	log "Downloading '$CURL_FILE' from '$CURL_BASE$CURL_PATH'..."
 	wget -U "$USER_AGENT" -O "$CURL_FILE" "$CURL_BASE$CURL_PATH"
 	extract_no_path "$CURL_FILE" "${CURL_DIR}/bin/curl.exe" "${CURL_DIR}/bin/curl-ca-bundle.crt"
