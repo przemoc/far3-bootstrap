@@ -146,7 +146,11 @@ download_farplugs_plugins() {
 
 # Start
 
-export PATH="$PWD;$PATH"
+if [ "$PATH" != "${PATH#*;}" ]; then
+	export PATH="$PWD;$PATH"
+else
+	export PATH="$PWD:$PATH"
+fi
 
 download_and_extract_curl
 download_and_extract_7zip
