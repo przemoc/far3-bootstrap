@@ -70,12 +70,8 @@ extract() { # ARCHIVE [FILE]...
 	shift
 	log "Extracting $@ from '$ARC'"
 	EXT=$(echo ${ARC##*.} | tr A-Z a-z)
-	if [ "$EXT" = "zip" ]; then
-		unzip -o "$ARC" "$@"
-	elif [ "$EXT" = "7z" ]; then
-		7z x -r -y "$ARC" "$@"
-	elif [ "$EXT" = "exe" ]; then
-		7z x -r -y "$ARC" "$@"
+	if   [ "$EXT" = "7z" ] || [ "$EXT" = "exe" ] || [ "$EXT" = "zip" ]; then
+		7z x -r -aoa "$ARC" "$@"
 	elif [ "$EXT" = "rar" ]; then
 		unrar x -o+ "$ARC" "$@"
 	fi
@@ -86,15 +82,18 @@ extract_no_path() { # ARCHIVE [FILE]
 	shift
 	log "Extracting $@ from '$ARC'"
 	EXT=$(echo ${ARC##*.} | tr A-Z a-z)
-	if [ "$EXT" = "zip" ]; then
-		unzip -jo "$ARC" "$@"
-	elif [ "$EXT" = "7z" ]; then
-		7z e -r -y "$ARC" "$@"
-	elif [ "$EXT" = "exe" ]; then
-		7z e -r -y "$ARC" "$@"
+	if   [ "$EXT" = "7z" ] || [ "$EXT" = "exe" ] || [ "$EXT" = "zip" ]; then
+		7z e -r -aoa "$ARC" "$@"
 	elif [ "$EXT" = "rar" ]; then
 		unrar e -o+ "$ARC" "$@"
 	fi
+}
+
+unzip_no_path() { # ARCHIVE [FILE]
+	ARC=$1
+	shift
+	log "Unzipping $@ from '$ARC'"
+	unzip -jo "$ARC" "$@" || busybox unzip -jo "$ARC" "$@"
 }
 
 download_and_extract_curl() {
@@ -103,7 +102,7 @@ download_and_extract_curl() {
 	CURL_DIR=${CURL_FILE%.zip}
 	log "Downloading '$CURL_FILE' from '$CURL_BASE$CURL_PATH'..."
 	wget -U "$USER_AGENT" -O "$CURL_FILE" "$CURL_BASE$CURL_PATH"
-	extract_no_path "$CURL_FILE" "${CURL_DIR}/bin/curl.exe" "${CURL_DIR}/bin/curl-ca-bundle.crt"
+	unzip_no_path "$CURL_FILE" "${CURL_DIR}/bin/curl.exe" "${CURL_DIR}/bin/curl-ca-bundle.crt"
 }
 
 download_and_extract_7zip() {
