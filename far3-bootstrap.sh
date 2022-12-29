@@ -33,8 +33,9 @@ PRING_INFO='plugin.php?pid='
 # Tools
 CURL_BASE='https://curl.se/windows/'
 CURL_PATT="curl for $BITS-bit"
-SZIPA_BASE='http://downloads.sourceforge.net/sevenzip/'
-SZIPA_FILE='7za920.zip'
+SZIPR_BASE='https://www.7-zip.org/'
+SZIPR_HTML='download.html'
+SZIPR_PATT='7zr\.exe'
 SZIP_BASE='https://www.7-zip.org/'
 SZIP_PATT='7z[0-9]*\.exe'
 UNRAR_BASE='http://www.rarlab.com/rar/'
@@ -106,10 +107,13 @@ download_and_extract_curl() {
 }
 
 download_and_extract_7zip() {
+	SZIPR_PATH=$(curl -gRLA "$USER_AGENT" "$SZIPR_BASE$SZIPR_HTML" | sed "/$SZIPR_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
+	SZIPR_FILE=${SZIPR_PATH##*/}
+	exists_or_download "$SZIPR_FILE" "$SZIPR_BASE$SZIPR_PATH"
 	SZIP_PATH=$(curl -gRLA "$USER_AGENT" "$SZIP_BASE" | sed "/$SZIP_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
 	SZIP_FILE=${SZIP_PATH##*/}
 	exists_or_download "$SZIP_FILE" "$SZIP_BASE$SZIP_PATH"
-	7za x -y "$SZIP_FILE" 7z.exe 7z.dll
+	7zr e -r -aoa "$SZIP_FILE" 7z.exe 7z.dll
 }
 
 download_plugring() { # PID [PATTERN]
@@ -145,6 +149,7 @@ download_farplugs_plugins() {
 export PATH="$PWD;$PATH"
 
 download_and_extract_curl
+download_and_extract_7zip
 
 FAR_FILES="$(curl -gRLA "$USER_AGENT" "$FAR_DLPAGE" \
  | sed \
@@ -161,10 +166,7 @@ log "Far Manager stable builds files"
 echo "$FAR_FILES"
 
 exists_or_download "$FAR_FILE" "$FAR_HOST$FAR_DLFILE"
-exists_or_download "$SZIPA_FILE" "$SZIPA_BASE$SZIPA_FILE"
 exists_or_download "$UNRAR_FILE" "$UNRAR_BASE$UNRAR_FILE"
-extract "$SZIPA_FILE" 7za.exe
-download_and_extract_7zip
 extract "$UNRAR_FILE" unrar.exe
 
 FARPLUGS=$(download_farplugs_plugins)
