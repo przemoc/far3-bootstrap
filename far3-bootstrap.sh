@@ -134,11 +134,22 @@ download_plugring() { # PID [PATTERN]
 }
 
 download_farplugs_plugins() {
-	URLS=$(curl -gRLA "$USER_AGENT" "${FARPLUGS_BASE}rss" | sed "/ *<link>/!d;s,,,;s,</link>.*,,;/_$FAR_VARIANT/!d")
+	curl -gRL --clobber -A "$USER_AGENT" -o farplugs.rss "${FARPLUGS_BASE}rss"
+	# sort -V depends on strverscmp() that is not always present, so...
+	sed '/ *<link>/!d;s,,,;s,</link>.*,,;/_'"$FAR_VARIANT"'/!d' farplugs.rss \
+		| sed -r 's,^([^0-9]*)([0-9]*[^0-9.])?(.*),\2\3@.\1,' \
+		| sort -nrt . -k 1,1 -k 2,2 -k 3,3 -k 4,4 -k 5,5 -k 6,6 \
+		| sort -st @ -k 2,2 \
+		| sed -r 's,^(.*)@\.(.*),\2\1,' \
+		>farplugs.txt
+	URLS=$(cat farplugs.txt)
 	for PLUGIN_URL in $URLS; do
 		PLUGIN_FILE=${PLUGIN_URL%/download}
 		PLUGIN_FILE=${PLUGIN_FILE##*/}
+		PLUGIN_NAME=${PLUGIN_FILE%%_*}
+		[ "$PLUGIN_NAME" != "$PLUGIN_NAME_PREV" ] || continue
 		exists_or_download "$PLUGIN_FILE" "$PLUGIN_URL"
+		PLUGIN_NAME_PREV=$PLUGIN_NAME
 		echo "$PLUGIN_FILE"
 	done
 }
