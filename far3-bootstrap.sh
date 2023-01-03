@@ -162,7 +162,7 @@ else
 	export PATH="$PWD:$PATH"
 fi
 
-download_and_extract_curl
+curl --version || download_and_extract_curl
 download_and_extract_7zip
 
 FAR_FILES="$(curl -gRLA "$USER_AGENT" "$FAR_DLPAGE" \
