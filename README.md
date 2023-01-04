@@ -24,6 +24,11 @@ Usage
 - Run `Far.exe`
 - Further update plugins using Renewal (via F11)
 
+Far Manager v3 screenshot
+-------------------------
+
+![Far Manager v3 with "Plugins configuration" dialog](far3.png)
+
 License
 -------
 
