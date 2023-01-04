@@ -7,13 +7,17 @@
 ## This script is licensed under the terms of the MIT license.
 ## https://opensource.org/licenses/MIT
 
-# Download zip, extract its content and go into newly created directory:
-#  https://github.com/przemoc/far3-bootstrap/zipball/master
-# On Windows run:
-#  far3-bootstrap.cmd
-# On Linux run:
-#  far3-bootstrap.sh
-# Run Far from Far.x?? directory and further update plugins using Renewal (via F11).
+# Download zip, extract its content and enter newly created directory:
+#   https://git.io/far3-bootstrap.zip   which redirects to:
+#   https://github.com/przemoc/far3-bootstrap/zipball/master
+# Run
+# - On Windows (old):
+#   far3-bootstrap.cmd
+# - On Windows 10+:
+#   far3-bootstrap.ps1
+# - On Linux:
+#   far3-bootstrap.sh
+# Run Far.exe from Far.x?? directory and further update plugins using Renewal (via F11).
 
 set -e
 
