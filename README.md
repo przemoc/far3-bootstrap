@@ -14,8 +14,10 @@ Usage
 - Extract its content
 - Enter newly created `przemoc-far3-bootstrap-???????` directory
 - Run
-  - On Windows:
+  - On Windows (old):
     `far3-bootstrap.cmd`
+  - On Windows 10+:
+    `far3-bootstrap.ps1`
   - On Linux:
     `far3-bootstrap.sh`
 - Enter newly created `Far.x??` directory
