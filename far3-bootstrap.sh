@@ -56,7 +56,7 @@ exists_or_download() {
 		log "File '$1' already exists."
 	else
 		log "Downloading '$1' from '$2'..."
-		curl -gRLA "$USER_AGENT" -o "$1" "$2"
+		curl -qgRLA "$USER_AGENT" -o "$1" "$2"
 	fi
 }
 
@@ -110,17 +110,17 @@ download_and_extract_curl() {
 }
 
 download_and_extract_7zip() {
-	SZIPR_PATH=$(curl -gRLA "$USER_AGENT" "$SZIPR_BASE$SZIPR_HTML" | sed "/$SZIPR_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
+	SZIPR_PATH=$(curl -qgRLA "$USER_AGENT" "$SZIPR_BASE$SZIPR_HTML" | sed "/$SZIPR_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
 	SZIPR_FILE=${SZIPR_PATH##*/}
 	exists_or_download "$SZIPR_FILE" "$SZIPR_BASE$SZIPR_PATH"
-	SZIP_PATH=$(curl -gRLA "$USER_AGENT" "$SZIP_BASE" | sed "/$SZIP_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
+	SZIP_PATH=$(curl -qgRLA "$USER_AGENT" "$SZIP_BASE" | sed "/$SZIP_PATT/!d;s,.*href=\",,;s,\".*,," | head -1)
 	SZIP_FILE=${SZIP_PATH##*/}
 	exists_or_download "$SZIP_FILE" "$SZIP_BASE$SZIP_PATH"
 	7zr e -r -aoa "$SZIP_FILE" 7z.exe 7z.dll
 }
 
 download_plugring() { # PID [PATTERN]
-	PLUGIN_INFO="$(curl -gRLA "$USER_AGENT" "$PRING_HOST$PRING_INFO$1" | sed \
+	PLUGIN_INFO="$(curl -qgRLA "$USER_AGENT" "$PRING_HOST$PRING_INFO$1" | sed \
  -e '/.*\(Version\|Far version\|Filename\|<a href="download.php?\)/!d;s,,\1,;'  \
  -e 's,</td></tr>,,;' \
  -e '/^<a /{s,<[^"]*",Url=,;s,">.*,,};' \
@@ -138,7 +138,7 @@ download_plugring() { # PID [PATTERN]
 }
 
 download_farplugs_plugins() {
-	curl -gRLA "$USER_AGENT" -o farplugs.rss "${FARPLUGS_BASE}rss"
+	curl -qgRLA "$USER_AGENT" -o farplugs.rss "${FARPLUGS_BASE}rss"
 	# sort -V depends on strverscmp() that is not always present, so...
 	sed '/ *<link>/!d;s,,,;s,</link>.*,,;/_'"$FAR_VARIANT"'/!d' farplugs.rss \
 		| sed -r 's,^([^0-9]*)([0-9]*[^0-9.])?(.*),\2\3@.\1,' \
@@ -169,7 +169,7 @@ fi
 curl --version || download_and_extract_curl
 download_and_extract_7zip
 
-FAR_FILES="$(curl -gRLA "$USER_AGENT" "$FAR_DLPAGE" \
+FAR_FILES="$(curl -qgRLA "$USER_AGENT" "$FAR_DLPAGE" \
  | sed \
  -e '/Stable builds/,/Nightly builds/!d;' \
  -e '/^[ \t]*<li>/!d;' \
