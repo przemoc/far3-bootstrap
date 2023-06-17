@@ -138,7 +138,7 @@ download_plugring() { # PID [PATTERN]
 }
 
 download_farplugs_plugins() {
-	curl -gRL -A "$USER_AGENT" -o farplugs.rss "${FARPLUGS_BASE}rss"
+	curl -gRLA "$USER_AGENT" -o farplugs.rss "${FARPLUGS_BASE}rss"
 	# sort -V depends on strverscmp() that is not always present, so...
 	sed '/ *<link>/!d;s,,,;s,</link>.*,,;/_'"$FAR_VARIANT"'/!d' farplugs.rss \
 		| sed -r 's,^([^0-9]*)([0-9]*[^0-9.])?(.*),\2\3@.\1,' \
