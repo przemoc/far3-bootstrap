@@ -26,6 +26,7 @@ USER_AGENT=far3-bootstrap/0.6
 FAR_VARIANT=${1:-x86}
 FAR_DIR="Far.$FAR_VARIANT"
 
+[ "$2" = "skip" ] && FAR_SKIP=1 || FAR_SKIP=
 [ "$FAR_VARIANT" = "x86" ] && BITS=32 || BITS=64
 
 # Far
@@ -169,21 +170,24 @@ fi
 curl --version || download_and_extract_curl
 download_and_extract_7zip
 
-FAR_FILES="$(curl -qgRLA "$USER_AGENT" "$FAR_DLPAGE" \
- | sed \
- -e '/Stable builds/,/Nightly builds/!d;' \
- -e '/^[ \t]*<li>/!d;' \
- -e 's,<a ,\n,g;' \
- | sed \
- -e '/^class="body_link" href="/!d;s,,,;s,".*,,;' \
-)"/
-FAR_DLFILE="$(echo "$FAR_FILES" | grep "\.$FAR_VARIANT\.[^.]*\.7z$")"
-FAR_FILE="${FAR_DLFILE##*/}"
+if [ -z "$FAR_SKIP" ]; then
+	FAR_FILES="$(curl -qgRLA "$USER_AGENT" "$FAR_DLPAGE" \
+	 | sed \
+	 -e '/Stable builds/,/Nightly builds/!d;' \
+	 -e '/^[ \t]*<li>/!d;' \
+	 -e 's,<a ,\n,g;' \
+	 | sed \
+	 -e '/^class="body_link" href="/!d;s,,,;s,".*,,;' \
+	)"/
+	FAR_DLFILE="$(echo "$FAR_FILES" | grep "\.$FAR_VARIANT\.[^.]*\.7z$")"
+	FAR_FILE="${FAR_DLFILE##*/}"
 
-log "Far Manager stable builds files"
-echo "$FAR_FILES"
+	log "Far Manager stable builds files"
+	echo "$FAR_FILES"
 
-exists_or_download "$FAR_FILE" "$FAR_HOST$FAR_DLFILE"
+	exists_or_download "$FAR_FILE" "$FAR_HOST$FAR_DLFILE"
+fi
+
 exists_or_download "$UNRAR_FILE" "$UNRAR_BASE$UNRAR_FILE"
 extract "$UNRAR_FILE" unrar.exe
 
@@ -191,11 +195,13 @@ FARPLUGS=$(download_farplugs_plugins)
 INTCHECKER=$(download_plugring 893 $FAR_VARIANT)
 RESEARCH=$(download_plugring 246)
 
-( mkdir -p "$FAR_DIR" && cd "$FAR_DIR" \
-  && extract ../"$FAR_FILE" \
-)
+if [ -z "$FAR_SKIP" ]; then
+	( mkdir -p "$FAR_DIR" && cd "$FAR_DIR" \
+	  && extract ../"$FAR_FILE" \
+	)
+fi
 
-( cd "$FAR_DIR/Plugins" \
+( mkdir -p "$FAR_DIR/Plugins" && cd "$FAR_DIR/Plugins" \
   && for PLUGIN in $FARPLUGS; do extract ../../$PLUGIN; done \
   && extract ../../"$INTCHECKER" \
   && ( mkdir -p RESearch && cd RESearch \
