@@ -76,7 +76,13 @@ extract() { # ARCHIVE [FILE]...
 	log "Extracting $@ from '$ARC'"
 	EXT=$(echo ${ARC##*.} | tr A-Z a-z)
 	if   [ "$EXT" = "7z" ] || [ "$EXT" = "exe" ] || [ "$EXT" = "zip" ]; then
-		7z x -r -aoa "$ARC" "$@"
+		# Workaround for NtfsFile which archive does not have root directory
+		ARCNAME=${ARC##*/}
+		if [ "${ARCNAME#NtfsFile_}" != "$ARCNAME" ]; then
+			7z x -r -aoa "$ARC" -oNtfsFile "$@"
+		else
+			7z x -r -aoa "$ARC" "$@"
+		fi
 	elif [ "$EXT" = "rar" ]; then
 		unrar x -o+ "$ARC" "$@"
 	fi
