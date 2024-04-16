@@ -43,7 +43,7 @@ SZIPR_PATT='7zr\.exe'
 SZIP_BASE='https://www.7-zip.org/'
 SZIP_PATT='7z[0-9]*\.exe'
 UNRAR_BASE='http://www.rarlab.com/rar/'
-UNRAR_FILE='unrarw32.exe'
+UNRAR_FILE='unrarw64.exe'
 
 # Sites
 FARPLUGS_BASE='https://sourceforge.net/projects/farplugs/'
